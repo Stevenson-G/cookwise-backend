@@ -1,10 +1,15 @@
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 
+class Ingredient(BaseModel):
+    name: str
+    amount: str
+    unit: str
+
 class RecipeCreate(BaseModel):
     title: str
     portion: str
-    food_type: str
-    ingredients: List[Dict]
+    category: str
+    ingredients: List[Ingredient]
     steps: List[str]
-    image_url: Optional[str] = None
+    image: Optional[str] = None

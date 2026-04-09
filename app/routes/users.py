@@ -4,8 +4,11 @@ import shutil
 import os
 
 from app.database.session import get_db
+from app.services import user_service
 from app.utils.security import get_current_user
 from app.models.user import User
+
+from app.services.user_service import follow_user, unfollow_user
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -24,3 +27,16 @@ def upload_profile_image(
     db.commit()
 
     return {"image_url": file_location}
+
+@router.post("/users/{user_id}/follow")
+def follow(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    return follow_user(db, current_user.id, user_id)
+
+
+@router.delete("/users/{user_id}/follow")
+def unfollow(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    return unfollow_user(db, current_user.id, user_id)
+
+@router.get("/users/{user_id}/stats")
+def get_user_stats(user_id: int, db: Session = Depends(get_db)):
+    return user_service.get_follow_stats(db, user_id)
