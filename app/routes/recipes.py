@@ -94,3 +94,7 @@ def search_recipes(
     db: Session = Depends(get_db)
 ):
     return recipe_service.search_recipes(db, query)
+
+@router.get("/search-smart")
+def search_smart(query: str, db: Session = Depends(get_db)):
+    return recipe_service.get_recipes_with_fallback(db, query)

@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     SUPABASE_URL: str
     SUPABASE_SERVICE_ROLE_KEY: str
+    SPOONACULAR_API_KEY: str
 
     class Config:
         env_file = ".env"

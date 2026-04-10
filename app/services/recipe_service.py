@@ -7,6 +7,10 @@ from app.models.like import Like
 from app.models.save import Save
 from fastapi import HTTPException
 
+import requests
+
+from app.config import settings
+
 def create_recipe(db, recipe_data, user_id):
 
     new_recipe = Recipe(
@@ -182,3 +186,74 @@ def search_recipes(db, query: str):
         })
 
     return result
+
+SPOONACULAR_API_KEY = settings.SPOONACULAR_API_KEY
+
+def get_recipe_details(recipe_id):
+    url = f"https://api.spoonacular.com/recipes/{recipe_id}/information"
+    
+    params = {
+        "includeNutrition": False,
+        "apiKey": SPOONACULAR_API_KEY
+    }
+
+    response = requests.get(url, params=params)
+    return response.json()
+
+def get_recipes_with_fallback(db, query: str):
+
+    local_recipes = db.query(Recipe).filter(
+        Recipe.title.ilike(f"%{query}%")
+    ).all()
+
+    if local_recipes:
+        return local_recipes
+
+    search_url = "https://api.spoonacular.com/recipes/complexSearch"
+
+    params = {
+        "query": query,
+        "number": 5,
+        "apiKey": SPOONACULAR_API_KEY
+    }
+
+    response = requests.get(search_url, params=params)
+    data = response.json()
+
+    results = data.get("results", [])
+
+    saved_recipes = []
+
+    for r in results:
+        details = get_recipe_details(r["id"])
+
+        ingredients = [
+            {
+                "name": ing["name"],
+                "amount": str(ing["amount"]),
+                "unit": ing["unit"]
+            }
+            for ing in details.get("extendedIngredients", [])
+        ]
+
+        steps = []
+        instructions = details.get("analyzedInstructions", [])
+        
+        if instructions:
+            for step in instructions[0]["steps"]:
+                steps.append(step["step"])
+
+        new_recipe = Recipe(
+            title=details.get("title"),
+            image_url=details.get("image"),
+            food_type="external",
+            ingredients=ingredients,
+            steps=steps
+        )
+
+        db.add(new_recipe)
+        saved_recipes.append(new_recipe)
+
+    db.commit()
+
+    return saved_recipes
