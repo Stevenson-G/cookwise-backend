@@ -80,3 +80,17 @@ def save(recipe_id: int, db: Session = Depends(get_db), current_user=Depends(get
 @router.delete("/{recipe_id}/save")
 def unsave(recipe_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     return recipe_service.unsave_recipe(db, current_user.id, recipe_id)
+
+@router.get("/category/{category}")
+def get_by_category(
+    category: str,
+    db: Session = Depends(get_db)
+):
+    return recipe_service.get_recipes_by_category(db, category)
+
+@router.get("/search")
+def search_recipes(
+    query: str,
+    db: Session = Depends(get_db)
+):
+    return recipe_service.search_recipes(db, query)

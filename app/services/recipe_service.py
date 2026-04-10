@@ -144,3 +144,41 @@ def is_saved(db, user_id: int, recipe_id: int):
         Save.user_id == user_id,
         Save.recipe_id == recipe_id
     ).first() is not None
+
+def get_recipes_by_category(db, category: str):
+
+    recipes = db.query(Recipe).filter(
+        Recipe.food_type.ilike(f"%{category}%")
+    ).all()
+
+    result = []
+
+    for recipe in recipes:
+        result.append({
+            "id": recipe.id,
+            "title": recipe.title,
+            "image": recipe.image_url,
+            "category": recipe.food_type,
+            "user_id": recipe.user_id
+        })
+
+    return result
+
+def search_recipes(db, query: str):
+
+    recipes = db.query(Recipe).filter(
+        Recipe.title.ilike(f"%{query}%")
+    ).all()
+
+    result = []
+
+    for recipe in recipes:
+        result.append({
+            "id": recipe.id,
+            "title": recipe.title,
+            "image": recipe.image_url,
+            "category": recipe.food_type,
+            "user_id": recipe.user_id
+        })
+
+    return result
