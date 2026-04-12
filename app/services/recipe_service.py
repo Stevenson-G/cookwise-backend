@@ -40,8 +40,7 @@ def get_feed(db, user_id: int):
 
     recipes = (
         db.query(Recipe)
-        .join(Follow, Recipe.user_id == Follow.following_id)
-        .filter(Follow.follower_id == user_id)
+        .order_by(Recipe.created_at.desc())
         .all()
     )
 
