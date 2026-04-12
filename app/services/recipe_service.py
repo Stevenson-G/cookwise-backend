@@ -11,15 +11,22 @@ import requests
 
 from app.config import settings
 
+from app.utils.supabase_client import upload_image
+
 def create_recipe(db, recipe_data, user_id):
 
+    image_url = None
+
+    if recipe_data.get("image"):
+        image_url = upload_image(recipe_data["image"])
+
     new_recipe = Recipe(
-        title=recipe_data.title,
-        portion=recipe_data.portion,
-        food_type=recipe_data.category,
-        ingredients=[ing.dict() for ing in recipe_data.ingredients],
-        steps=recipe_data.steps,
-        image_url=recipe_data.image,
+        title=recipe_data["title"],
+        portion=recipe_data["portion"],
+        food_type=recipe_data["foodType"],
+        ingredients=recipe_data["ingredients"],
+        steps=recipe_data["steps"],
+        image_url=image_url,
         user_id=user_id
     )
 

@@ -10,15 +10,37 @@ from app.models.recipe import Recipe
 from app.models.like import Like
 from app.models.save import Save
 
+from fastapi import Form, File, UploadFile
+import json
+
 router = APIRouter(prefix="/recipes", tags=["Recipes"])
+
+
 
 @router.post("/")
 def create_recipe(
-    recipe: RecipeCreate,
+    title: str = Form(...),
+    portion: str = Form(...),
+    foodType: str = Form(...),
+    ingredients: str = Form(...),
+    steps: str = Form(...),
+    image: UploadFile = File(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return recipe_service.create_recipe(db, recipe, current_user.id)
+    ingredients = json.loads(ingredients)
+    steps = json.loads(steps)
+
+    recipe_data = {
+        "title": title,
+        "portion": portion,
+        "foodType": foodType,
+        "ingredients": ingredients,
+        "steps": steps,
+        "image": image
+    }
+
+    return recipe_service.create_recipe(db, recipe_data, current_user.id)
 
 @router.get("/feed")
 def get_user_feed(
