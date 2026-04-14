@@ -28,15 +28,19 @@ def upload_profile_image(
 
     return {"image_url": file_location}
 
-@router.post("/users/{user_id}/follow")
+@router.post("/{user_id}/follow")
 def follow(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     return follow_user(db, current_user.id, user_id)
 
 
-@router.delete("/users/{user_id}/follow")
+@router.delete("/{user_id}/follow")
 def unfollow(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     return unfollow_user(db, current_user.id, user_id)
 
-@router.get("/users/{user_id}/stats")
+@router.get("/{user_id}/stats")
 def get_user_stats(user_id: int, db: Session = Depends(get_db)):
     return user_service.get_follow_stats(db, user_id)
+
+@router.get("/me/username")
+def get_username(current_user=Depends(get_current_user)):
+    return {"username": current_user.username}
