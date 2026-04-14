@@ -7,6 +7,7 @@ from app.models.like import Like
 from app.models.save import Save
 from fastapi import HTTPException
 
+import json
 import requests
 
 from app.config import settings
@@ -24,11 +25,12 @@ def create_recipe(db, recipe_data, user_id):
         title=recipe_data["title"],
         portion=recipe_data["portion"],
         food_type=recipe_data["foodType"],
-        ingredients=recipe_data["ingredients"],
-        steps=recipe_data["steps"],
+        ingredients=json.dumps(recipe_data["ingredients"]),
+        steps=json.dumps(recipe_data["steps"]),
         image_url=image_url,
         user_id=user_id
-    )
+)
+    
 
     db.add(new_recipe)
     db.commit()
@@ -223,8 +225,12 @@ def get_recipes_with_fallback(db, query: str):
         "apiKey": SPOONACULAR_API_KEY
     }
 
-    response = requests.get(search_url, params=params)
-    data = response.json()
+    try:
+        response = requests.get(search_url, params=params)
+        data = response.json()
+    except Exception as e:
+        print("ERROR SPOONACULAR:", e)
+        return []
 
     results = data.get("results", [])
 
@@ -245,9 +251,9 @@ def get_recipes_with_fallback(db, query: str):
         steps = []
         instructions = details.get("analyzedInstructions", [])
         
-        if instructions:
-            for step in instructions[0]["steps"]:
-                steps.append(step["step"])
+        if instructions and len(instructions) > 0:
+            for step in instructions[0].get("steps", []):
+                steps.append(step.get("step", ""))
 
         new_recipe = Recipe(
             title=details.get("title"),
