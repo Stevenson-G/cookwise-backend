@@ -49,58 +49,36 @@ def get_user_feed(
 ):
     return recipe_service.get_feed(db, current_user.id)
 
-def get_feed(db, user_id: int):
-
-    recipes = db.query(Recipe).all()
-
-    result = []
-
-    for recipe in recipes:
-
-        likes_count = db.query(Like).filter(
-            Like.recipe_id == recipe.id
-        ).count()
-
-        liked = db.query(Like).filter(
-            Like.recipe_id == recipe.id,
-            Like.user_id == user_id
-        ).first() is not None
-
-        saves_count = db.query(Save).filter(
-            Save.recipe_id == recipe.id
-        ).count()
-
-        saved = db.query(Save).filter(
-            Save.recipe_id == recipe.id,
-            Save.user_id == user_id
-        ).first() is not None
-
-        result.append({
-            "id": recipe.id,
-            "title": recipe.title,
-            "image": recipe.image_url,
-            "likes": likes_count,
-            "liked_by_user": liked,
-            "saves": saves_count,
-            "saved_by_user": saved
-        })
-
-    return result
-
 @router.post("/{recipe_id}/like")
-def like(recipe_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def like(
+    recipe_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     return recipe_service.like_recipe(db, current_user.id, recipe_id)
 
 @router.delete("/{recipe_id}/like")
-def unlike(recipe_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def unlike(
+    recipe_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     return recipe_service.unlike_recipe(db, current_user.id, recipe_id)
 
 @router.post("/{recipe_id}/save")
-def save(recipe_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def save(
+    recipe_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     return recipe_service.save_recipe(db, current_user.id, recipe_id)
 
 @router.delete("/{recipe_id}/save")
-def unsave(recipe_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def unsave(
+    recipe_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     return recipe_service.unsave_recipe(db, current_user.id, recipe_id)
 
 @router.get("/category/{category}")
