@@ -176,14 +176,12 @@ def get_recipes_by_category(db, category: str):
 
     return result
 
-def search_recipes(db, query: str):
-
+def search_recipes(db, query: str, limit: int = 20):
     recipes = db.query(Recipe).filter(
         Recipe.title.ilike(f"%{query}%")
-    ).all()
+    ).limit(limit).all()
 
     result = []
-
     for recipe in recipes:
         result.append({
             "id": recipe.id,
