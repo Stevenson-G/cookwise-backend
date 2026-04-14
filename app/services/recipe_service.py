@@ -1,3 +1,5 @@
+from unittest import result
+
 from sqlalchemy.orm import Session
 
 from app.models.recipe import Recipe
@@ -25,8 +27,8 @@ def create_recipe(db, recipe_data, user_id):
         title=recipe_data["title"],
         portion=recipe_data["portion"],
         food_type=recipe_data["foodType"],
-        ingredients=json.dumps(recipe_data["ingredients"]),
-        steps=json.dumps(recipe_data["steps"]),
+        ingredients=recipe_data["ingredients"],
+        steps=recipe_data["steps"],
         image_url=image_url,
         user_id=user_id
 )
@@ -71,7 +73,7 @@ def get_feed(db, user_id: int):
         result.append({
             "id": recipe.id,
             "title": recipe.title,
-            "image": recipe.image_url,
+            "image": recipe.image_url or "",
             "likes": likes_count,
             "saves": saves_count,
             "liked": liked,
@@ -235,7 +237,11 @@ def get_recipes_with_fallback(db, query: str):
     saved_recipes = []
 
     for r in results:
-        details = get_recipe_details(r["id"])
+        for r in results:
+            details = get_recipe_details(r["id"])
+
+            if not details:
+                continue
 
         ingredients = [
             {
@@ -254,11 +260,12 @@ def get_recipes_with_fallback(db, query: str):
                 steps.append(step.get("step", ""))
 
         new_recipe = Recipe(
-            title=details.get("title"),
-            image_url=details.get("image"),
+            title=details.get("title") or "",
+            image_url=details.get("image") or "",
             food_type="external",
             ingredients=ingredients,
-            steps=steps
+            steps=steps,
+            user_id=None
         )
 
         db.add(new_recipe)
@@ -266,4 +273,15 @@ def get_recipes_with_fallback(db, query: str):
 
     db.commit()
 
-    return saved_recipes
+    result = []
+
+    for recipe in saved_recipes:
+        result.append({
+            "id": recipe.id,
+            "title": recipe.title,
+            "image": recipe.image_url,
+            "category": recipe.food_type,
+            "user_id": recipe.user_id
+        })
+    
+    return result
