@@ -74,7 +74,10 @@ def get_feed(db, user_id: int):
             "saves": saves_count,
             "liked": liked,
             "saved": saved,
-            "user_id": recipe.user_id
+            "user": {
+                "id": recipe.user_id,
+                "name": recipe.user.username if recipe.user else "Anónimo"
+            }
         })
 
     return result
