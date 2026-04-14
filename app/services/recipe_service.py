@@ -42,11 +42,7 @@ def create_recipe(db, recipe_data, user_id):
 
 def get_feed(db, user_id: int):
 
-    recipes = (
-        db.query(Recipe)
-        .order_by(Recipe.created_at.desc())
-        .all()
-    )
+    recipes = db.query(Recipe).all()
 
     result = []
 
