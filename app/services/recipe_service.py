@@ -70,6 +70,8 @@ def get_feed(db, user_id: int):
             "id": recipe.id,
             "title": recipe.title,
             "image": recipe.image_url or "",
+            "ingredients": recipe.ingredients or [],
+            "steps": recipe.steps or [],
             "likes": likes_count,
             "saves": saves_count,
             "liked": liked,
