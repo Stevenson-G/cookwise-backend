@@ -1,5 +1,3 @@
-from unittest import result
-
 from sqlalchemy.orm import Session
 
 from app.models.recipe import Recipe
@@ -16,6 +14,34 @@ from app.config import settings
 
 from app.utils.supabase_client import upload_image
 
+
+def _normalize_ingredients(raw_ingredients):
+    """Normalize ingredient payloads coming from different clients."""
+    normalized = []
+
+    for ingredient in raw_ingredients or []:
+        if not isinstance(ingredient, dict):
+            continue
+
+        name = ingredient.get("name") or ingredient.get("ingredient") or ""
+        amount = (
+            ingredient.get("amount")
+            or ingredient.get("quantity")
+            or ingredient.get("cantidad")
+            or ""
+        )
+        unit = ingredient.get("unit") or ingredient.get("unidad") or ""
+
+        normalized.append(
+            {
+                "name": str(name).strip(),
+                "amount": str(amount).strip(),
+                "unit": str(unit).strip(),
+            }
+        )
+
+    return normalized
+
 def create_recipe(db, recipe_data, user_id):
 
     image_url = None
@@ -27,7 +53,7 @@ def create_recipe(db, recipe_data, user_id):
         title=recipe_data["title"],
         portion=recipe_data["portion"],
         food_type=recipe_data["foodType"],
-        ingredients=recipe_data["ingredients"],
+        ingredients=_normalize_ingredients(recipe_data.get("ingredients")),
         steps=recipe_data["steps"],
         image_url=image_url,
         user_id=user_id
@@ -72,6 +98,7 @@ def get_feed(db, user_id: int):
             "image": recipe.image_url or "",
             "ingredients": recipe.ingredients or [],
             "steps": recipe.steps or [],
+            "portion": recipe.portion or "",
             "likes": likes_count,
             "saves": saves_count,
             "liked": liked,
@@ -264,7 +291,7 @@ def get_recipes_with_fallback(db, query: str):
             food_type="external",
             ingredients=ingredients,
             steps=steps,
-            portion=str(details.get("servings", "N/A")),  # ✅ FIX
+            portion=str(details.get("servings", "N/A")),
             user_id=None
         )
 
