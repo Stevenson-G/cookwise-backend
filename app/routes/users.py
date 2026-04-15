@@ -41,6 +41,10 @@ def unfollow(user_id: int, db: Session = Depends(get_db), current_user=Depends(g
 def get_user_stats(user_id: int, db: Session = Depends(get_db)):
     return user_service.get_follow_stats(db, user_id)
 
+@router.get("/me")
+def get_my_profile(current_user: User = Depends(get_current_user)):
+    return current_user
+
 @router.get("/me/username")
-def get_username(current_user=Depends(get_current_user)):
+def get_username(current_user: User = Depends(get_current_user)):
     return {"username": current_user.username}
