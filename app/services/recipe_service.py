@@ -234,28 +234,26 @@ def get_recipes_with_fallback(db, query: str):
         return []
 
     results = data.get("results", [])
-
     saved_recipes = []
 
     for r in results:
-        for r in results:
-            details = get_recipe_details(r["id"])
+        details = get_recipe_details(r["id"])
 
-            if not details:
-                continue
+        if not details:
+            continue
 
         ingredients = [
             {
-                "name": ing["name"],
-                "amount": str(ing["amount"]),
-                "unit": ing["unit"]
+                "name": ing.get("name", ""),
+                "amount": str(ing.get("amount", "")),
+                "unit": ing.get("unit", "")
             }
             for ing in details.get("extendedIngredients", [])
         ]
 
         steps = []
         instructions = details.get("analyzedInstructions", [])
-        
+
         if instructions and len(instructions) > 0:
             for step in instructions[0].get("steps", []):
                 steps.append(step.get("step", ""))
@@ -266,10 +264,13 @@ def get_recipes_with_fallback(db, query: str):
             food_type="external",
             ingredients=ingredients,
             steps=steps,
+            portion=str(details.get("servings", "N/A")),  # ✅ FIX
             user_id=None
         )
 
         db.add(new_recipe)
+        db.flush()
+
         saved_recipes.append(new_recipe)
 
     db.commit()
@@ -281,8 +282,17 @@ def get_recipes_with_fallback(db, query: str):
             "id": recipe.id,
             "title": recipe.title,
             "image": recipe.image_url,
-            "category": recipe.food_type,
-            "user_id": recipe.user_id
+            "ingredients": recipe.ingredients,
+            "steps": recipe.steps,
+            "portion": recipe.portion,
+            "likes": 0,
+            "saves": 0,
+            "liked": False,
+            "saved": False,
+            "user": {
+                "id": None,
+                "name": "Spoonacular"
+            }
         })
-    
+
     return result
