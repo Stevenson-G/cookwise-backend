@@ -48,3 +48,10 @@ def get_my_profile(current_user: User = Depends(get_current_user)):
 @router.get("/me/username")
 def get_username(current_user: User = Depends(get_current_user)):
     return {"username": current_user.username}
+
+@router.get("/me/stats")
+def get_my_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return user_service.get_follow_stats(db, current_user.id)
