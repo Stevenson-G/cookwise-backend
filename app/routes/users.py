@@ -52,6 +52,29 @@ def get_my_stats(
 ):
     return user_service.get_follow_stats(db, current_user.id)
 
+@router.get("/me/recipes")
+def get_my_recipes(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return user_service.get_user_recipes(db, current_user.id)
+
+
+@router.get("/me/liked")
+def get_liked_recipes(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return user_service.get_liked_recipes(db, current_user.id)
+
+
+@router.get("/me/saved")
+def get_saved_recipes(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return user_service.get_saved_recipes(db, current_user.id)
+
 @router.get("/{user_id}/stats")
 def get_user_stats(user_id: int, db: Session = Depends(get_db)):
     return user_service.get_follow_stats(db, user_id)
