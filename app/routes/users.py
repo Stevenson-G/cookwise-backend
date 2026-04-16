@@ -37,10 +37,6 @@ def follow(user_id: int, db: Session = Depends(get_db), current_user=Depends(get
 def unfollow(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     return unfollow_user(db, current_user.id, user_id)
 
-@router.get("/{user_id}/stats")
-def get_user_stats(user_id: int, db: Session = Depends(get_db)):
-    return user_service.get_follow_stats(db, user_id)
-
 @router.get("/me")
 def get_my_profile(current_user: User = Depends(get_current_user)):
     return current_user
@@ -55,3 +51,7 @@ def get_my_stats(
     current_user: User = Depends(get_current_user)
 ):
     return user_service.get_follow_stats(db, current_user.id)
+
+@router.get("/{user_id}/stats")
+def get_user_stats(user_id: int, db: Session = Depends(get_db)):
+    return user_service.get_follow_stats(db, user_id)
