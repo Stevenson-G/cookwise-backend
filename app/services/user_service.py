@@ -1,5 +1,9 @@
 from app.models.follow import Follow
 from fastapi import HTTPException
+from app.models.recipe import Recipe
+from app.models.like import Like
+from app.models.save import Save
+
 
 def follow_user(db, current_user_id: int, target_user_id: int):
 
@@ -48,7 +52,30 @@ def get_follow_stats(db, user_id: int):
         Follow.follower_id == user_id
     ).count()
 
+    posts_count = db.query(Recipe).filter(
+        Recipe.user_id == user_id
+    ).count()
+
     return {
-        "followers": followers_count,
-        "following": following_count
+        "followers_count": followers_count,
+        "following_count": following_count,
+        "posts_count": posts_count
     }
+
+
+def get_user_recipes(db, user_id: int):
+    return db.query(Recipe).filter(Recipe.user_id == user_id).all()
+
+
+def get_liked_recipes(db, user_id: int):
+    likes = db.query(Like).filter(Like.user_id == user_id).all()
+    recipe_ids = [l.recipe_id for l in likes]
+
+    return db.query(Recipe).filter(Recipe.id.in_(recipe_ids)).all()
+
+
+def get_saved_recipes(db, user_id: int):
+    saves = db.query(Save).filter(Save.user_id == user_id).all()
+    recipe_ids = [s.recipe_id for s in saves]
+
+    return db.query(Recipe).filter(Recipe.id.in_(recipe_ids)).all()
