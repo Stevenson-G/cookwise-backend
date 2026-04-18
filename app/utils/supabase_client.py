@@ -16,6 +16,9 @@ def upload_image(file):
 
         file_content = file.file.read()
 
+        if len(file_content) > 5 * 1024 * 1024: 
+            raise Exception("Imagen demasiado grande")
+
         if not file_content:
             raise Exception("Archivo vacío")
         
