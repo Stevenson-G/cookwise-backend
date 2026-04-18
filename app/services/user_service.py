@@ -64,18 +64,75 @@ def get_follow_stats(db, user_id: int):
 
 
 def get_user_recipes(db, user_id: int):
-    return db.query(Recipe).filter(Recipe.user_id == user_id).all()
+    recipes = db.query(Recipe).filter(Recipe.user_id == user_id).all()
+
+    result = []
+
+    for recipe in recipes:
+        result.append({
+            "id": recipe.id,
+            "title": recipe.title,
+            "image": recipe.image_url or "",
+            "ingredients": recipe.ingredients or [],
+            "steps": recipe.steps or [],
+            "user": {
+                "id": recipe.user_id,
+                "name": recipe.user.username if recipe.user else "Anónimo"
+            }
+        })
+
+    return result
 
 
 def get_liked_recipes(db, user_id: int):
     likes = db.query(Like).filter(Like.user_id == user_id).all()
     recipe_ids = [l.recipe_id for l in likes]
 
-    return db.query(Recipe).filter(Recipe.id.in_(recipe_ids)).all()
+    if not recipe_ids:
+        return []
+
+    recipes = db.query(Recipe).filter(Recipe.id.in_(recipe_ids)).all()
+
+    result = []
+
+    for recipe in recipes:
+        result.append({
+            "id": recipe.id,
+            "title": recipe.title,
+            "image": recipe.image_url or "",
+            "ingredients": recipe.ingredients or [],
+            "steps": recipe.steps or [],
+            "user": {
+                "id": recipe.user_id,
+                "name": recipe.user.username if recipe.user else "Anónimo"
+            }
+        })
+
+    return result
 
 
 def get_saved_recipes(db, user_id: int):
     saves = db.query(Save).filter(Save.user_id == user_id).all()
     recipe_ids = [s.recipe_id for s in saves]
 
-    return db.query(Recipe).filter(Recipe.id.in_(recipe_ids)).all()
+    if not recipe_ids:
+        return []
+
+    recipes = db.query(Recipe).filter(Recipe.id.in_(recipe_ids)).all()
+
+    result = []
+
+    for recipe in recipes:
+        result.append({
+            "id": recipe.id,
+            "title": recipe.title,
+            "image": recipe.image_url or "",
+            "ingredients": recipe.ingredients or [],
+            "steps": recipe.steps or [],
+            "user": {
+                "id": recipe.user_id,
+                "name": recipe.user.username if recipe.user else "Anónimo"
+            }
+        })
+
+    return result
