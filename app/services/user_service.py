@@ -75,6 +75,7 @@ def get_user_recipes(db, user_id: int):
             "image": recipe.image_url or "",
             "ingredients": recipe.ingredients or [],
             "steps": recipe.steps or [],
+            "portion": recipe.portion or "",
             "user": {
                 "id": recipe.user_id,
                 "name": recipe.user.username if recipe.user else "Anónimo"
