@@ -28,8 +28,15 @@ def create_recipe(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    ingredients = json.loads(ingredients)
-    steps = json.loads(steps)
+    try:
+        ingredients = json.loads(ingredients)
+    except:
+        ingredients = []
+
+    try:
+        steps = json.loads(steps)
+    except:
+        steps = []
 
     recipe_data = {
         "title": title,
@@ -37,7 +44,7 @@ def create_recipe(
         "foodType": foodType,
         "ingredients": ingredients,
         "steps": steps,
-        "image": image
+        "image": image if image else None
     }
 
     return recipe_service.create_recipe(db, recipe_data, current_user.id)
