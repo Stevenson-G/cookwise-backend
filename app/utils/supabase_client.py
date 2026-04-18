@@ -16,6 +16,11 @@ def upload_image(file):
 
         file_content = file.file.read()
 
+        if not file_content:
+            raise Exception("Archivo vacío")
+        
+        print("Tamaño imagen:", len(file_content))
+    
         supabase.storage.from_("recipes-images").upload(
             file_name,
             file_content,

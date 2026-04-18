@@ -47,7 +47,13 @@ def create_recipe(db, recipe_data, user_id):
     image_url = None
 
     if recipe_data.get("image"):
-        image_url = upload_image(recipe_data["image"])
+        try:
+            print("📤 Intentando subir imagen...")
+            image_url = upload_image(recipe_data["image"])
+            print("Imagen subida:", image_url)
+        except Exception as e:
+            print("ERROR subiendo imagen:", e)
+            image_url = None
 
     new_recipe = Recipe(
         title=recipe_data["title"],
