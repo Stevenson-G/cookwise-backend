@@ -16,24 +16,25 @@ def upload_image(file):
 
         file_content = file.file.read()
 
-        if len(file_content) > 5 * 1024 * 1024: 
-            raise Exception("Imagen demasiado grande")
+        print("SUBIENDO A SUPABASE...")
 
-        if not file_content:
-            raise Exception("Archivo vacío")
-        
-        print("Tamaño imagen:", len(file_content))
-    
-        supabase.storage.from_("recipes-images").upload(
+        res = supabase.storage.from_("recipes-images").upload(
             file_name,
             file_content,
             {"content-type": file.content_type}
         )
 
+        print("RESPUESTA SUPABASE:", res)
+
         public_url = supabase.storage.from_("recipes-images").get_public_url(file_name)
+
+        print("URL GENERADA:", public_url)
+
+        if isinstance(public_url, dict):
+            return public_url.get("publicUrl")
 
         return public_url
 
     except Exception as e:
-        print("ERROR SUBIENDO IMAGEN:", e)
+        print("ERROR REAL SUPABASE:", str(e))
         return None
