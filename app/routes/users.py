@@ -9,6 +9,7 @@ from app.utils.security import get_current_user
 from app.models.user import User
 
 from app.services.user_service import follow_user, unfollow_user
+from app.utils.supabase_client import upload_image
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -18,17 +19,19 @@ def upload_profile_image(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    os.makedirs("uploads", exist_ok=True)
+    print("📤 Subiendo imagen de perfil...")
 
-    file_location = f"uploads/{current_user.id}_{image.filename}"
+    image_url = upload_image(image)
 
-    with open(file_location, "wb") as buffer:
-        shutil.copyfileobj(image.file, buffer)
+    print("Imagen subida:", image_url)
 
-    current_user.profile_image = file_location
+    if not image_url:
+        return {"error": "No se pudo subir la imagen"}
+
+    current_user.profile_image = image_url
     db.commit()
 
-    return {"image_url": file_location}
+    return {"image_url": image_url}
 
 @router.post("/{user_id}/follow")
 def follow(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
@@ -41,7 +44,11 @@ def unfollow(user_id: int, db: Session = Depends(get_db), current_user=Depends(g
 
 @router.get("/me")
 def get_my_profile(current_user: User = Depends(get_current_user)):
-    return current_user
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "profile_image": current_user.profile_image
+    }
 
 @router.get("/me/username")
 def get_username(current_user: User = Depends(get_current_user)):
