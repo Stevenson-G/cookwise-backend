@@ -1,7 +1,7 @@
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta
-
+import os
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -35,7 +35,8 @@ def get_current_user(
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "supersecretkey"
+
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
