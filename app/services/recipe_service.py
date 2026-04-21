@@ -64,7 +64,6 @@ def create_recipe(db, recipe_data, user_id):
         image_url=image_url,
         user_id=user_id
 )
-    
 
     db.add(new_recipe)
     db.commit()
