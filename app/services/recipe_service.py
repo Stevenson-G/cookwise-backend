@@ -81,7 +81,7 @@ def get_feed(db, user_id: int):
 
         is_following = db.query(Follow).filter(
             Follow.follower_id == user_id,
-            Follow.following_id == recipe.user_id
+            Follow.followed_id == recipe.user_id
         ).first() is not None
 
         likes_count = db.query(Like).filter(
@@ -115,7 +115,7 @@ def get_feed(db, user_id: int):
             "saved": saved,
             "user": {
                 "id": recipe.user_id,
-                "name": recipe.user.username if recipe.user else "Anónimo",
+                "name": recipe.user.username if recipe.user else "Cookwise",
                 "is_following": is_following,
             }
         })
